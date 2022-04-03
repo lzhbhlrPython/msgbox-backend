@@ -1,6 +1,6 @@
 from flask import Flask, request
 from bleach import clean
-from config import config, rds
+from api.config import config
 import random
 import string
 import json
@@ -23,7 +23,16 @@ def hello(name):
 #POST /api/comment_s
 @app.route('/api/comment_s', methods=['POST', "GET"])
 def comment_s():
-    token=request.json['token']
+    ip = request.remote_addr
+    ipk="ip_"+ip
+    if rds.exists(ipk) and int(rds[ipk].decode(encoding="utf-8")) >= 4:
+        return json.dumps({'status': 'error', 'message': '请求过于频繁，请稍后再试'}, ensure_ascii=False)
+    elif not rds.exists(ipk):
+        rds.set(ipk,'1')
+        rds.expire(ipk, 60)
+    else:
+        rds.set(ipk,str(int(rds[ipk].decode(encoding="utf-8"))+1))
+        rds.expire(ipk, 60)
     try:
         comment_content = clean(request.json['content'], tags=[
                                 "strong", "em", "mark", "del", "u", "a", "img", "blockquote"], strip=True)
@@ -55,8 +64,10 @@ def delete_comment(id):
         return json.dumps({'status': 'error', 'message': 'Comment not found'}, ensure_ascii=False)
 
 
-@app.route('/api/data')
-def get_data():
+@app.route('/api/data/<string:key>')
+def get_data(key):
+    if key!=config["control"]["find_all_data"]:
+        return json.dumps({'status': 'error', 'message': 'wrong password'}, ensure_ascii=False)
     ret = {}
     for a in rds.keys():
         ret[a.decode()] = rds[a.decode()].decode()
