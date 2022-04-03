@@ -7,7 +7,7 @@ import string
 import json
 import redis
 app = Flask(__name__)
-with open("msgbox.json") as f:
+with open("../msgbox.json") as f:
     config=json.load(f)
     rds = redis.StrictRedis(host=config["redis"]["ip"], port=config["redis"]["port"],
                         db=config["redis"]["db"], password=config["redis"]["password"])
@@ -67,33 +67,6 @@ def clear_db(password):
     for a in rds.keys():
         rds.delete(a)
     return json.dumps({'status': 'ok', 'message': 'Data cleared'}, ensure_ascii=False)
-
-#验证码及图片生成
-@app.route('/api/captcha/<string:id>')
-def captcha(id):
-    id=id+"_captcha"
-    if rds.exists(id):
-        return json.dumps({'status': 'error', 'message': 'Captcha already exists'}, ensure_ascii=False)
-    captcha_content="".join([random.choice(string.ascii_letters+string.digits) for i in range(random.randint(4,8))])
-    rds[id]=captcha_content
-    img = Image.new('RGB', (200, 50), (255, 255, 255))
-    font = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 40)
-    draw = ImageDraw.Draw(img)
-    draw.text((10, 10), captcha_content, (0, 0, 0), font=font)
-    img.save('/tmp/captcha.png')
-    return json.dumps({'status': 'ok', 'message': 'Captcha created', 'captcha': b64encode(open('/tmp/captcha.png', 'rb').read()).decode()}, ensure_ascii=False)
-
-#验证码验证
-@app.route('/api/captcha_check/<string:id>/<string:captcha>')
-def captcha_check(id,captcha):
-    id=id+"_captcha"
-    if rds.exists(id):
-        if rds[id].decode()==captcha:
-            return json.dumps({'status': 'ok', 'message': 'Captcha correct'}, ensure_ascii=False)
-        else:
-            return json.dumps({'status': 'error', 'message': 'Captcha incorrect'}, ensure_ascii=False)
-    else:
-        return json.dumps({'status': 'error', 'message': 'Captcha not found'}, ensure_ascii=False)
 
 if __name__ == "__main__":
     app.run(debug=True)
