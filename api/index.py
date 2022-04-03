@@ -1,14 +1,11 @@
 from flask import Flask,request
 from bleach import clean
-from PIL import Image, ImageDraw, ImageFont
-from base64 import b64encode
+from config import config
 import random
 import string
 import json
 import redis
 app = Flask(__name__)
-with open("../msgbox.json") as f:
-    config=json.load(f)
     rds = redis.StrictRedis(host=config["redis"]["ip"], port=config["redis"]["port"],
                         db=config["redis"]["db"], password=config["redis"]["password"])
 

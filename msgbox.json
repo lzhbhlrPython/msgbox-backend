@@ -1,0 +1,8 @@
+{
+    "redis": {
+        "ip": "47.99.137.96",
+        "port":6379,
+        "password":"redisPassword&2022",
+        "db":0
+    }
+}
