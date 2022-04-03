@@ -1,6 +1,6 @@
 from flask import Flask, request
 from bleach import clean
-from config import config
+from config import config, rds
 import random
 import string
 import json
@@ -23,6 +23,7 @@ def hello(name):
 #POST /api/comment_s
 @app.route('/api/comment_s', methods=['POST', "GET"])
 def comment_s():
+    token=request.json['token']
     try:
         comment_content = clean(request.json['content'], tags=[
                                 "strong", "em", "mark", "del", "u", "a", "img", "blockquote"], strip=True)
@@ -61,10 +62,9 @@ def get_data():
         ret[a.decode()] = rds[a.decode()].decode()
     return json.dumps({'status': 'ok', 'message': 'Data found', 'data': ret}, ensure_ascii=False)
 
-
 @app.route('/api/clear_db/if_you_know_what_you_are_doing/<string:password>')
 def clear_db(password):
-    if password != "fuckUnvidia":
+    if password != config["control"]["clear_db"]:
         return json.dumps({'status': 'error', 'message': 'Wrong password'}, ensure_ascii=False)
     for a in rds.keys():
         rds.delete(a)
