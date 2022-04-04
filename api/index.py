@@ -62,7 +62,9 @@ def comment_s():
             rds[cid] = comment_content
         elif request.json["comment_type"]=="timed":
             rds[cid] = comment_content
-            rds.expireat(datetime.datetime.fromtimestamp(request.json["time"]))
+            
+            if not rds.expireat(cid,datetime.datetime.fromtimestamp(request.json["time"]))：
+                return "failed",400
         return json.dumps({'status': 'ok', 'message': 'Comment Commited', 'id': cid}, ensure_ascii=False)
     except Exception as e:
         return json.dumps({'status': 'error', 'message': str(e)}, ensure_ascii=False)
