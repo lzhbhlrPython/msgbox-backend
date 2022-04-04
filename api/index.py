@@ -12,7 +12,7 @@ rds = redis.StrictRedis(host=config["redis"]["ip"], port=config["redis"]["port"]
 
 def json_route(*args1, **kwargs1):
     def ret_func(func):
-        @json_route(*args1, **kwargs1)
+        @flask.route(*args1, **kwargs1)
         def ret_func2(*args2, **kwargs2):
             return json.dumps(func(*args2, **kwargs2), ensure_ascii=False)
         return ret_func2
