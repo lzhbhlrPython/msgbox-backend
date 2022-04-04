@@ -41,6 +41,10 @@
             <div class="form-group">
                 <label for="comment_input">秘言内容提交: <small class="text-muted">提交匿名聊天内容以获取可查询的秘言ID。</small></label>
                 <textarea class="form-control type=" text" id="comment_input" placeholder="秘言内容(1~100个字符)"></textarea>
+                <div class="custom-control custom-checkbox custom-control-inline">
+                    <input type="checkbox" id="isDestory" name="type-radio" class="custom-control-input">
+                    <label class="custom-control-label" for="isDestory">阅后即焚？</label>
+                  </div>
                 <button type="button" class="btn btn-outline-primary btn-block"
                     onclick="create_comment(document.getElementById('comment_input').value)">提交秘言（提交后请自行复制id）</button>
                 <span class="form-text text-primary user-select-all" id="id">等待中</span>
@@ -60,7 +64,7 @@
         <div class="alert alert-primary" role="alert">
             <p>提示: <small class="text-muted">如果你的秘言id没有被查询到，请确认你的秘言id是否正确。</small></p>
             <p class="text-center">
-                Copyright © 2021-2022 <a href="https://pyliubaolin.top/">瞎哔哔的py</a>. All rights reserved.
+                Copyright © 2021-2022 <em>MsgBox Team</em>. All rights reserved.
             </p>
         </div>
     </div>
@@ -86,8 +90,14 @@
             alert('留言为空.');
             return;
         }
+        if (document.getElementsByName('type-radio')[0].checked==true){
+            var type_="destroy";
+        }else if(document.getElementsByName('type-radio')[0].checked==false){
+            var type_="normal";
+        }
         axios.post('/api/comment_s', {
-            content: comment
+            content: comment,
+            comment_type: type_
         })
             .then(function (response) {
                 console.log(response.data);

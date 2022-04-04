@@ -50,9 +50,14 @@ def comment_s():
         rds.set(ipk, str(int(rds[ipk].decode(encoding="utf-8"))+1))
         rds.expire(ipk, 60)
     try:
+        if request.json.get("comment_type")==None or request.json.get("comment_type")=="":
+            return json.dumps({'status': 'error', 'message': 'type is required'}, ensure_ascii=False)
         comment_content = clean(request.json['content'], tags=[
                                 "strong", "em", "mark", "del", "u", "a", "img", "blockquote"], strip=True)
-        cid = "comment_"+uuid.uuid5(uuid.NAMESPACE_DNS,comment_content+str(time.time())).hex
+        if request.json["comment_type"]=="normal":
+            cid = "comment_"+uuid.uuid5(uuid.NAMESPACE_DNS,comment_content+str(time.time())).hex
+        elif request.json["comment_type"]=="destroy":
+            cid = "destroy_"+uuid.uuid5(uuid.NAMESPACE_DNS,comment_content+str(time.time())).hex
         rds[cid] = comment_content
         return json.dumps({'status': 'ok', 'message': 'Comment Commited', 'id': cid}, ensure_ascii=False)
     except Exception as e:
@@ -61,8 +66,13 @@ def comment_s():
 
 @app.route('/api/comment_g/<string:id>')
 def get_comment(id):
+    id=id.strip()
+    id_type=id.split("_")[0]
     if rds.exists(id):
-        return json.dumps({'status': 'ok', 'message': 'Comment found', 'content': rds[id].decode(encoding="utf-8")}, ensure_ascii=False)
+        content=rds[id].decode(encoding="utf-8")
+        if id_type=="destroy":
+            rds.delete(id)
+        return json.dumps({'status': 'ok', 'message': 'Comment found', 'content': content}, ensure_ascii=False)
     else:
         return json.dumps({'status': 'error', 'message': 'Comment not found'}, ensure_ascii=False)
 
@@ -97,8 +107,6 @@ def clear_db(password):
     return json.dumps({'status': 'ok', 'message': 'Data cleared'}, ensure_ascii=False)
 
 # unbanned
-
-
 @app.route('/api/unban/<string:ipk>/<string:password>')
 def unban(ipk, password):
     if password != config["control"]["ban_ip"]:
@@ -108,6 +116,7 @@ def unban(ipk, password):
         return json.dumps({'status': 'ok', 'message': 'unbanned'}, ensure_ascii=False)
     else:
         return json.dumps({'status': 'error', 'message': 'ip not found'}, ensure_ascii=False)
+
 
 
 if __name__ == "__main__":
