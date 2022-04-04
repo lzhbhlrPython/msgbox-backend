@@ -59,11 +59,11 @@ def comment_s():
             return {'status': 'error', 'message': 'type is required'}
         comment_content = request.json['content']
         if request.json["comment_type"]=="normal":
-            rds[cid] = comment_content
             cid = f"comment_{uuid.uuid5(uuid.NAMESPACE_DNS,comment_content+str(time.time())).hex}"
-        elif request.json["comment_type"]=="destroy":
             rds[cid] = comment_content
+        elif request.json["comment_type"]=="destroy":
             cid = f"destroy_{uuid.uuid5(uuid.NAMESPACE_DNS,comment_content+str(time.time())).hex}"
+            rds[cid] = comment_content
         elif request.json["comment_type"]=="timed":
             rds[cid] = comment_content
             if not rds.expireat(datetime.datetime.fromtimestamp(request.json["time"])):
@@ -81,8 +81,8 @@ def get_comment(id):
         content=rds[id].decode(encoding="utf-8")
         if id_type=="destroy":
             rds.delete(id)
-            return json.dumps({'status': 'ok', 'message': 'Comment found(destroy after read)', 'content': content}, ensure_ascii=False)
-        return json.dumps({'status': 'ok', 'message': 'Comment found', 'content': content}, ensure_ascii=False)
+            return {'status': 'ok', 'message': 'Comment found(destroy after read)', 'content': content}
+        return {'status': 'ok', 'message': 'Comment found', 'content': content}
     else:
         return {'status': 'error', 'message': 'Comment not found'}
 
