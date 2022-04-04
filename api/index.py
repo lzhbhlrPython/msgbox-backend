@@ -1,8 +1,7 @@
 from flask import Flask, request
 from bleach import clean
 from api.config import config
-import random
-import string
+import datetime
 import time
 import json
 import redis
@@ -59,13 +58,15 @@ def comment_s():
         if request.json.get("comment_type")==None or request.json.get("comment_type")=="":
             return {'status': 'error', 'message': 'type is required'}
         if request.json["comment_type"]=="normal":
+            rds[cid] = comment_content
             cid = f"comment_{uuid.uuid5(uuid.NAMESPACE_DNS,comment_content+str(time.time())).hex}"
         elif request.json["comment_type"]=="destroy":
+            rds[cid] = comment_content
             cid = f"destroy_{uuid.uuid5(uuid.NAMESPACE_DNS,comment_content+str(time.time())).hex}"
         elif request.json["comment_type"]=="timed":
+            rds[cid] = comment_content
             if not rds.expireat(datetime.datetime.fromtimestamp(request.json["time"])):
                 return {'status': 'error', 'message': 'time error'}
-        rds[cid] = comment_content
         return {'status': 'ok', 'message': 'Comment Commited', 'id': cid}
     except Exception as e:
         return {'status': 'error', 'message': str(e)}
