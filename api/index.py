@@ -5,7 +5,7 @@ import random
 import string
 import json
 import redis
-import time
+import uuid
 app = Flask(__name__)
 rds = redis.StrictRedis(host=config["redis"]["ip"], port=config["redis"]["port"],
                         db=config["redis"]["db"], password=config["redis"]["password"])
@@ -51,11 +51,7 @@ def comment_s():
     try:
         comment_content = clean(request.json['content'], tags=[
                                 "strong", "em", "mark", "del", "u", "a", "img", "blockquote"], strip=True)
-        cid = "comment_"+("".join([random.choice(string.ascii_letters+string.digits)
-                          for i in range(random.randint(10, 48))]))
-        while rds.exists(cid):
-            cid = "comment_"+("".join([random.choice(string.ascii_letters+string.digits)
-                              for i in range(random.randint(10, 48))]))
+        cid = "comment_"+uuid.uuid5(uuid.NAMESPACE_DNS,comment_content).hex
         rds[cid] = comment_content
         return json.dumps({'status': 'ok', 'message': 'Comment Commited', 'id': cid}, ensure_ascii=False)
     except Exception as e:
