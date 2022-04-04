@@ -79,12 +79,8 @@ def get_comment(id):
         content=rds[id].decode(encoding="utf-8")
         if id_type=="destroy":
             rds.delete(id)
-<<<<<<< HEAD
-        return {'status': 'ok', 'message': 'Comment found', 'content': content}
-=======
             return json.dumps({'status': 'ok', 'message': 'Comment found(destroy after read)', 'content': content}, ensure_ascii=False)
         return json.dumps({'status': 'ok', 'message': 'Comment found', 'content': content}, ensure_ascii=False)
->>>>>>> Update index.py
     else:
         return {'status': 'error', 'message': 'Comment not found'}
 
