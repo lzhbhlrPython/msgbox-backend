@@ -51,8 +51,7 @@ def comment_s():
     try:
         if request.json.get("comment_type")==None or request.json.get("comment_type")=="":
             return json.dumps({'status': 'error', 'message': 'type is required'}, ensure_ascii=False)
-        comment_content = clean(request.json['content'], tags=[
-                                "strong", "em", "mark", "del", "u", "a", "img", "blockquote"], strip=True)
+        comment_content = request.json['content']
         if request.json["comment_type"]=="normal":
             cid = "comment_"+uuid.uuid5(uuid.NAMESPACE_DNS,comment_content+str(time.time())).hex
             rds[cid] = comment_content
