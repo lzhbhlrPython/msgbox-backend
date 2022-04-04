@@ -1,8 +1,7 @@
 from flask import Flask, request
 from bleach import clean
 from api.config import config
-import random
-import string
+import datetime
 import time
 import json
 import redis
@@ -63,8 +62,8 @@ def comment_s():
         elif request.json["comment_type"]=="timed":
             rds[cid] = comment_content
             
-            if not rds.expireat(cid,datetime.datetime.fromtimestamp(request.json["time"]))：
-                return "failed",400
+            if not rds.expireat(cid,datetime.datetime.fromtimestamp(request.json["time"])):
+                return json.dumps({'status': 'error', 'message': 'time error'}, ensure_ascii=False)
         return json.dumps({'status': 'ok', 'message': 'Comment Commited', 'id': cid}, ensure_ascii=False)
     except Exception as e:
         return json.dumps({'status': 'error', 'message': str(e)}, ensure_ascii=False)
