@@ -40,7 +40,7 @@
         <form>
             <div class="form-group">
                 <label for="comment_input">秘言内容提交: <small class="text-muted">提交匿名聊天内容以获取可查询的秘言ID。</small></label>
-                <textarea class="form-control type=" text" id="comment_input" placeholder="秘言内容(1~1000个字符)"></textarea>
+                <textarea class="form-control type=" text" id="comment_input" placeholder="秘言内容(1~100个字符)"></textarea>
                 <button type="button" class="btn btn-outline-primary btn-block"
                     onclick="create_comment(document.getElementById('comment_input').value)">提交秘言（提交后请自行复制id）</button>
                 <span class="form-text text-primary user-select-all" id="id">等待中</span>
@@ -78,7 +78,7 @@
             document.getElementById('status').innerHTML = '后端服务连接失败.';
         });
     function create_comment(comment) {
-        if (comment.length > 1000) {
+        if (comment.length > 100) {
             alert('留言过长');
             return;
         }
