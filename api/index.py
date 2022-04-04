@@ -3,6 +3,7 @@ from bleach import clean
 from api.config import config
 import random
 import string
+import time
 import json
 import redis
 import uuid
@@ -51,7 +52,7 @@ def comment_s():
     try:
         comment_content = clean(request.json['content'], tags=[
                                 "strong", "em", "mark", "del", "u", "a", "img", "blockquote"], strip=True)
-        cid = "comment_"+uuid.uuid5(uuid.NAMESPACE_DNS,comment_content).hex
+        cid = "comment_"+uuid.uuid5(uuid.NAMESPACE_DNS,comment_content+str(time.time())).hex
         rds[cid] = comment_content
         return json.dumps({'status': 'ok', 'message': 'Comment Commited', 'id': cid}, ensure_ascii=False)
     except Exception as e:
