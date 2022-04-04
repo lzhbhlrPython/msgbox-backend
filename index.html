@@ -1,78 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta lang="zh-CN">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Py's Msgbox</title>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
-            crossorigin="anonymous">
-        <link rel="stylesheet" href="https://oss.pyliubaolin.top/notion-light-enhanced.css">
-        <style>
-            body {
-                font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-            }
-            .select-bar {
-                display: flex;
-            }
-        </style>
-    </head>
 
-    <body>
-        <div class="container">
-            <div class="jumbotron">
-                <h1 class="display-4">
-                    秘言箱
-                </h1>
-                <p>基于Python、Redis和无服务器服务的匿名消息页面。(为防止资源滥用，每分钟仅可提交4次，二十四小时内触发四次警告即封禁)</p>
-                <p>现已加入markdown支持,<a href="https://www.runoob.com/markdown/md-tutorial.html">markdown教程</a></p>
-                <p>目前使用Notion Light Enhanced主题，因为是直接从Typora扒下来的，显示上略有问题</p>
-                <p>想要帮助修改的可提交PR：<a href="https://github.com/lzhbhlrPython/msgbox">https://github.com/lzhbhlrPython/msgbox</a></p>
-            </div>
-            <div class="alert alert-danger" role="alert">
-                <strong>公告：</strong><br/>
-                <p>由于本站收到来自不明人士(已收编)的垃圾数据攻击，特采用特殊方式予以限制，我站郑重承诺不会将您的任何隐私数据贩卖出售，并于24h内删除</p>
-            </div>
-            <div class="alert alert-primary" role="alert">
-                <p>运行状态: <span id="status">加载中……</span></p>
-            </div>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta lang="zh-CN">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Py's Msgbox</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="https://oss.pyliubaolin.top/notion-light-enhanced.css">
+    <style>
+        body {
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+        }
 
-            <form>
-                <div class="form-group">
-                    <label for="comment_input">秘言内容提交: <small class="text-muted">提交匿名聊天内容以获取可查询的秘言ID。</small></label>
-                    <textarea class="form-control type=" text" id="comment_input" placeholder="秘言内容(1~100个字符)" required maxlength="100"></textarea>
-                    <div class="select-bar">
-                        <div class="custom-control custom-checkbox custom-control-inline checkbox-group">
-                            <input type="checkbox" id="isDestory" name="type-radio" class="custom-control-input">
-                            <label class="custom-control-label" for="isDestory">阅后即焚？</label>
-                        </div>
-                        <button type="button" class="btn btn-outline-primary btn-block"
-                            onclick="create_comment($('#comment_input').val())">提交秘言（提交后请自行复制id）</button>
-                    </div>
-                    <span class="form-text text-primary user-select-all" id="id">等待中</span>
-                </div>
-                <div class="form-group">
-                    <label for="id_input">秘言内容查询 <small class="text-muted">根据你提供的秘言ID查询他人留下的信息。</small></label>
-                    <input class="form-control type=" text" id="id_input" placeholder="秘言id(comment_xxxxxxx)">
-                    <button type="button" class="btn btn-outline-primary btn-block" onclick="get_comment($('#id_input').val())">查询秘言</button>
-                    <span class="form-text text-danger user-select-none" id="comment">等待中</span>
-                </div>
-            </form>
-            <div>
-                查询结果：<br />
-                <span style="white-space:pre-wrap;width: 80%;" id="write">No result</span>
-            </div>
-            <div class="alert alert-primary" role="alert">
-                <p>提示: <small class="text-muted">如果你的秘言id没有被查询到，请确认你的秘言id是否正确。</small></p>
-                <p class="text-center">
-                    Copyright © 2021-2022 <em>MsgBox Team</em>. All rights reserved.
-                </p>
-            </div>
+        .form-space{
+            height: 5px;
+        }
+
+
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="jumbotron">
+            <h1 class="display-4">
+                秘言箱
+            </h1>
+            <p>基于Python、Redis和无服务器服务的匿名消息页面。(为防止资源滥用，每分钟仅可提交4次，二十四小时内触发四次警告即封禁)</p>
+            <p>现已加入markdown支持,<a href="https://www.runoob.com/markdown/md-tutorial.html">markdown教程</a></p>
+            <p>目前使用Notion Light Enhanced主题，因为是直接从Typora扒下来的，显示上略有问题</p>
+            <p>想要帮助修改的可提交PR：<a
+                    href="https://github.com/lzhbhlrPython/msgbox">https://github.com/lzhbhlrPython/msgbox</a></p>
         </div>
-        <script>
-            window.onload = function () {
-                axios.get('/api/')
+        <div class="alert alert-danger" role="alert">
+            <strong>公告：</strong><br />
+            <p>由于本站收到来自不明人士(已收编)的垃圾数据攻击，特采用特殊方式予以限制，我站郑重承诺不会将您的任何隐私数据贩卖出售，并于24h内删除</p>
+        </div>
+        <div class="alert alert-primary" role="alert">
+            <p>运行状态: <span id="status">加载中……</span></p>
+        </div>
+
+        <form>
+            <div class="form-group">
+                <label for="comment_input">秘言内容提交: <small class="text-muted">提交匿名聊天内容以获取可查询的秘言ID。</small></label>
+                <textarea class="form-control type=" text" id="comment_input" placeholder="秘言内容(1~100个字符)" required
+                    maxlength="100"></textarea>
+                    <div class="form-space"></div>
+                <div class="form-group text-center">
+                    <div class="custom-control custom-radio custom-control-inline radio-group">
+                        <input type="radio" id="isDestory" name="type-radio" class="custom-control-input">
+                        <label class="custom-control-label" for="isDestory">阅后即焚？</label>
+                    </div>
+                    <div class="custom-control custom-radio custom-control-inline radio-group">
+                        <input type="radio" id="isTimed" name="type-radio" class="custom-control-input">
+                        <label class="custom-control-label" for="isTimed">定时销毁？</label>
+                    </div>
+                    <div class="custom-control custom-control-inline radio-group">
+                        <input type="number" class="form-control" id="timed_input" placeholder="定时销毁时间(单位:分钟)">
+                    </div>
+                    <div class="form-space"></div>
+                    <button type="button" class="container-fluid btn btn-outline-primary btn-block"
+                        onclick="create_comment($('#comment_input').val())">提交秘言（提交后请自行复制id）</button>
+                </div>
+                <span class="form-text text-primary user-select-all" id="id">等待中</span>
+            </div>
+            <div class="form-group">
+                <label for="id_input">秘言内容查询 <small class="text-muted">根据你提供的秘言ID查询他人留下的信息。</small></label>
+                <input class="form-control type=" text" id="id_input" placeholder="秘言id(comment/destroy/time_xxxxxxx)">
+                <div class="form-space"></div>
+                <button type="button" class="btn btn-outline-primary btn-block"
+                    onclick="get_comment($('#id_input').val())">查询秘言</button>
+                <span class="form-text text-danger user-select-none" id="comment">等待中</span>
+            </div>
+        </form>
+        <div>
+            查询结果：<br />
+            <span style="white-space:pre-wrap;width: 80%;" id="write">No result</span>
+        </div>
+        <div class="alert alert-primary" role="alert">
+            <p>提示: <small class="text-muted">如果你的秘言id没有被查询到，请确认你的秘言id是否正确。</small></p>
+            <p class="text-center">
+                Copyright © 2021-2022 <em>MsgBox Team</em>. All rights reserved.
+            </p>
+        </div>
+    </div>
+    <script>
+        window.onload = function () {
+            axios.get('/api/')
                 .then(function (response) {
                     console.log(response.data);
                     $('#status').html('后端服务连接成功.');
@@ -80,12 +97,34 @@
                 .catch(function (error) {
                     $('#status').html('后端服务连接失败.');
                 });
-            }
-            function create_comment(comment) {
-                axios.post('/api/comment_s', {
+        }
+
+        function create_comment(comment) {
+            if ($("[name='type-radio']")[0].checked) {
+                comment_type = 'destroy';
+                params = {
                     content: comment,
-                    comment_type: $("[name='type-radio']")[0].checked ? "destroy" : "normal"
-                })
+                    comment_type: comment_type,
+                }
+            } else if ($("[name='type-radio']")[1].checked) {
+                comment_type = 'timed';
+                if ($('#timed_input').val() == '') {
+                    alert('请输入定时销毁时间');
+                    return;
+                }
+                params = {
+                    content: comment,
+                    comment_type: comment_type,
+                    time: (parseFloat($('#timed_input').val()) * 60),
+                }
+            } else {
+                comment_type = 'comment';
+                params = {
+                    content: comment,
+                    comment_type: comment_type,
+                }
+            }
+            axios.post('/api/comment_s', params)
                 .then(function (response) {
                     console.log(response.data);
                     if (response.data.status == 'ok') {
@@ -98,32 +137,35 @@
                 .catch(function (error) {
                     $('#status').html('提交留言失败');
                 });
-            }
-            function get_comment(id) {
-                axios.get('/api/comment_g/' + id)
-                    .then(function (response) {
-                        console.log(response.data);
-                        if (response.data.status == 'ok') {
-                            md = window.markdownit();
-                            $('#status').html('获取留言成功.');
-                            $('#comment').html('加载成功');
-                            $("#write").html(md.render(response.data.content));
-                            if (~id.indexOf("destroy_")) {
-                                setTimeout(location.reload, 5000);
-                            }
-                        } else {
-                            $('#status').html('获取留言失败.后端MSG：' + response.data.message);
+        }
+        function get_comment(id) {
+            axios.get('/api/comment_g/' + id)
+                .then(function (response) {
+                    console.log(response.data);
+                    if (response.data.status == 'ok') {
+                        md = window.markdownit();
+                        $('#status').html('获取留言成功.');
+                        $('#comment').html('加载成功');
+                        $("#write").html(md.render(response.data.content));
+                        if (~id.indexOf("destroy_")) {
+                            setTimeout(function () {
+                                location.reload();
+                            }, 5000);
                         }
-                    })
-                    .catch(function (error) {
-                        $('#status').html('获取留言失败');
-                    });
-            }
-        </script>
-        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"
-            crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/markdown-it@12.3.2/dist/markdown-it.js"></script>
-    </body>
+                    } else {
+                        $('#status').html('获取留言失败.后端MSG：' + response.data.message);
+                    }
+                })
+                .catch(function (error) {
+                    $('#status').html('获取留言失败');
+                });
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it@12.3.2/dist/markdown-it.js"></script>
+</body>
+
 </html>

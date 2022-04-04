@@ -10,21 +10,15 @@ app = Flask(__name__)
 rds = redis.StrictRedis(host=config["redis"]["ip"], port=config["redis"]["port"],
                         db=config["redis"]["db"], password=config["redis"]["password"])
 
-def json_route(*args1, **kwargs1):
-    def ret_func(func):
-        @flask.route(*args1, **kwargs1)
-        def ret_func2(*args2, **kwargs2):
-            return json.dumps(func(*args2, **kwargs2), ensure_ascii=False)
-        return ret_func2
-    return ret_func
 
-@json_route('/api/')
+
+@app.route('/api/')
 def index():
     return {'status': 'ok', 'message': 'Hello World!'}
 
 
 #POST /api/comment_s
-@json_route('/api/comment_s', methods=['POST', "GET"])
+@app.route('/api/comment_s', methods=['POST', "GET"])
 def comment_s():
     # 不可维护的代码awa
     content_length=len(request.json['content'])
@@ -65,15 +59,15 @@ def comment_s():
             cid = f"destroy_{uuid.uuid5(uuid.NAMESPACE_DNS,comment_content+str(time.time())).hex}"
             rds[cid] = comment_content
         elif request.json["comment_type"]=="timed":
-            rds[cid] = comment_content
-            if not rds.expireat(datetime.datetime.fromtimestamp(request.json["time"])):
-                return {'status': 'error', 'message': 'time error'}
+            cid=f"timed_{uuid.uuid5(uuid.NAMESPACE_DNS,comment_content+str(time.time())).hex}"
+            rds.set(cid, comment_content)
+            rds.expire(cid, int(request.json["time"]))
         return {'status': 'ok', 'message': 'Comment Commited', 'id': cid}
     except Exception as e:
         return {'status': 'error', 'message': str(e)}
 
 
-@json_route('/api/comment_g/<string:id>')
+@app.route('/api/comment_g/<string:id>')
 def get_comment(id):
     id=id.strip()
     id_type=id.split("_")[0]
@@ -87,7 +81,7 @@ def get_comment(id):
         return {'status': 'error', 'message': 'Comment not found'}
 
 
-@json_route('/api/comment_d/<string:id>')
+@app.route('/api/comment_d/<string:id>')
 def delete_comment(id):
     if rds.exists(id):
         rds.delete(id)
@@ -96,7 +90,7 @@ def delete_comment(id):
         return {'status': 'error', 'message': 'Comment not found'}
 
 
-@json_route('/api/data/<string:key>')
+@app.route('/api/data/<string:key>')
 def get_data(key):
     if key != config["control"]["find_all_data"]:
         return {'status': 'error', 'message': 'wrong password'}
@@ -106,7 +100,7 @@ def get_data(key):
     return {'status': 'ok', 'message': 'Data found', 'data': ret}
 
 
-@json_route('/api/clear_db/if_you_know_what_you_are_doing/<string:password>')
+@app.route('/api/clear_db/if_you_know_what_you_are_doing/<string:password>')
 def clear_db(password):
     if password != config["control"]["clear_db"]:
         return {'status': 'error', 'message': 'Wrong password'}
@@ -117,7 +111,7 @@ def clear_db(password):
     return {'status': 'ok', 'message': 'Data cleared'}
 
 # unbanned
-@json_route('/api/unban/<string:ipk>/<string:password>')
+@app.route('/api/unban/<string:ipk>/<string:password>')
 def unban(ipk, password):
     if password != config["control"]["ban_ip"]:
         return {'status': 'error', 'message': 'Wrong password'}
