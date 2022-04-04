@@ -11,6 +11,7 @@ rds = redis.StrictRedis(host=config["redis"]["ip"], port=config["redis"]["port"]
                         db=config["redis"]["db"], password=config["redis"]["password"])
 
 
+
 @app.route('/api/')
 def index():
     return json.dumps({'status': 'ok', 'message': 'Hello World!'}, ensure_ascii=False)
@@ -20,7 +21,12 @@ def index():
 @app.route('/api/comment_s', methods=['POST', "GET"])
 def comment_s():
     # 不可维护的代码awa
+    content_length=len(request.json['content'])
+    if content_length<1 or content_length>100:
+        return json.dumps({'status': 'error', 'message': 'content length error'}, ensure_ascii=False)
     ip = request.remote_addr
+    if ip in config["ip_blacklist"]:
+        return {'status': 'error', 'message': 'ip is banned forever'}
     ipk = "connect_"+ip
     ipb = "isStop_"+ip
     ipban = "ip_"+ip
