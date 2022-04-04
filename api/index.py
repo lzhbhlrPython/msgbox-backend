@@ -57,6 +57,7 @@ def comment_s():
     try:
         if request.json.get("comment_type")==None or request.json.get("comment_type")=="":
             return {'status': 'error', 'message': 'type is required'}
+        comment_content = request.json['content']
         if request.json["comment_type"]=="normal":
             rds[cid] = comment_content
             cid = f"comment_{uuid.uuid5(uuid.NAMESPACE_DNS,comment_content+str(time.time())).hex}"
