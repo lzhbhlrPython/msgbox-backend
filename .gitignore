@@ -1,3 +1,4 @@
 .vercel
 /api/config.py
 /api/__pycache__/
+.vscode
