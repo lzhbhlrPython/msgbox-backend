@@ -58,12 +58,13 @@ def comment_s():
     try:
         if request.json.get("comment_type")==None or request.json.get("comment_type")=="":
             return {'status': 'error', 'message': 'type is required'}
-        comment_content = clean(request.json['content'], tags=[
-                                "strong", "em", "mark", "del", "u", "a", "img", "blockquote"], strip=True)
         if request.json["comment_type"]=="normal":
             cid = f"comment_{uuid.uuid5(uuid.NAMESPACE_DNS,comment_content+str(time.time())).hex}"
         elif request.json["comment_type"]=="destroy":
             cid = f"destroy_{uuid.uuid5(uuid.NAMESPACE_DNS,comment_content+str(time.time())).hex}"
+        elif request.json["comment_type"]=="timed":
+            if not rds.expireat(datetime.datetime.fromtimestamp(request.json["time"])):
+                return {'status': 'error', 'message': 'time error'}
         rds[cid] = comment_content
         return {'status': 'ok', 'message': 'Comment Commited', 'id': cid}
     except Exception as e:
@@ -78,7 +79,12 @@ def get_comment(id):
         content=rds[id].decode(encoding="utf-8")
         if id_type=="destroy":
             rds.delete(id)
+<<<<<<< HEAD
         return {'status': 'ok', 'message': 'Comment found', 'content': content}
+=======
+            return json.dumps({'status': 'ok', 'message': 'Comment found(destroy after read)', 'content': content}, ensure_ascii=False)
+        return json.dumps({'status': 'ok', 'message': 'Comment found', 'content': content}, ensure_ascii=False)
+>>>>>>> Update index.py
     else:
         return {'status': 'error', 'message': 'Comment not found'}
 
