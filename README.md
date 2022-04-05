@@ -1,5 +1,7 @@
 # msgbox
 
+[online demo](https://msgbox.nomoneyer.top)
+
 你需要创建一个`api/config.py`在使用之前.
 
 ```python
