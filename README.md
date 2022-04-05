@@ -42,4 +42,6 @@ vercel --prod
 
 ## Msgbox Team全体成员
 
-@lzhbhlrpython @calvinweb @3swordman
+- [@lzhbhlrpython](https://github.com/lzhbhlrpython) 
+- [@calvinweb](https://github.com/calvinweb) 
+- [@3swordman](https://github.com/3swordman)
