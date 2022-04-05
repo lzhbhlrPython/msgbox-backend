@@ -1,5 +1,5 @@
 # msgbox
-![msgbox](https://socialify.git.ci/lzhbhlrPython/msgbox/image?description=1&font=KoHo&forks=1&issues=1&name=1&owner=1&pattern=Charlie%20Brown&pulls=1&stargazers=1&theme=Dark)
+![msgbox](https://socialify.git.ci/lzhbhlrPython/msgbox/image?description=1&font=KoHo&forks=1&issues=1&name=1&owner=1&pattern=Charlie%20Brown&pulls=1&stargazers=1&theme=Light)
 
 [online demo](https://msgbox.nomoneyer.top)
 
